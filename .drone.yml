@@ -22,3 +22,13 @@ steps:
     acl: public-read
     exclude:
       - .git/**/*
+
+---
+kind: secret
+name: aws_access_key_id
+data: Xwh27GnY0eN8C8lj/mxfmjps6KtAf8VFyHHRuS4yech4UF4SJe3I8CuR94sfdD+m
+
+---
+kind: secret
+name: aws_secret_access_key
+data: brLk157q7vyt99JvwUfSeU1uRUqwFLqWo/Z9sUjZEcwAeiZZhjn2VTuI9dPiG2qXYhSGt+PIgHRCBbLQFv0PCF3GPUg=
