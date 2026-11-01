@@ -28,7 +28,7 @@ const registry = {
   experience: { component: ExperienceSection, props: (c) => ({ timelines: c.timelines, locale: locale.value, labels: c.labels, effects: c.effects }) },
   projects: { component: ProjectsSection, props: (c) => ({ projects: c.projects }) },
   services: { component: ServicesSection, props: (c) => ({ services: c.services }) },
-  favorites: { component: FavoritesSection, props: (c) => ({ favorites: c.favorites }) },
+  'about-me': { component: FavoritesSection, props: (c) => ({ favorites: c.favorites }) },
   contact: { component: ContactSection, props: (c) => ({ contact: c.contact }) },
 }
 

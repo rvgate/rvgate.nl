@@ -108,7 +108,7 @@ export default {
     { id: 'skills', title: 'Skills' },
     { id: 'experience', title: { en: 'Experience', nl: 'Ervaring' } },
     { id: 'projects', title: { en: 'Projects', nl: 'Projecten' } },
-    { id: 'favorites', title: { en: 'About me', nl: 'Over mij' } },
+    { id: 'about-me', title: { en: 'About me', nl: 'Over mij' } },
     { id: 'services', title: { en: 'Services', nl: 'Diensten' } },
     { id: 'contact', title: 'Contact', primary: true },
   ],
