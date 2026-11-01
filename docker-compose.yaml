@@ -1,0 +1,15 @@
+services:
+  web:
+    image: rvgate-nl:latest
+    restart: always
+    environment:
+      - VIRTUAL_HOST=rvgate.nl,www.rvgate.nl
+      - VIRTUAL_PORT=80
+    labels:
+      - monitoring=true
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,221 @@
+/* ------------------------------------------------------------
+   Global styles: theme variables, base elements and the bits
+   shared by several components. Component-specific styles live
+   in the <style scoped> block of each component.
+   ------------------------------------------------------------ */
+
+:root {
+    --bg:        #0f1117;
+    --bg-raised: #171a23;
+    --bg-hover:  #1e2230;
+    --border:    #262b3a;
+    --text:      #e6e8ef;
+    --muted:     #8b91a5;
+
+    /* palette (names used in src/content.js) */
+    --blue:   #7c9cff;
+    --teal:   #4fd1c5;
+    --orange: #f6ad55;
+    --purple: #b794f4;
+    --pink:   #f687b3;
+    --green:  #68d391;
+
+    --accent: var(--blue);
+
+    --tag-text-mix: white;   /* coloured tags are tinted towards this */
+    --shadow: rgba(0, 0, 0, .35);
+    --glow-1: rgba(124, 156, 255, .14);
+    --glow-2: rgba(79, 209, 197, .08);
+
+    --radius: 14px;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+
+    color-scheme: dark;
+}
+
+/* Light theme: picked with the toggle, or the system preference
+   when the visitor hasn't picked anything. Keep both blocks in sync. */
+:root[data-theme="light"] {
+    --bg:        #f5f6fa;
+    --bg-raised: #ffffff;
+    --bg-hover:  #eef1f8;
+    --border:    #dde1ec;
+    --text:      #1a1d29;
+    --muted:     #5b6275;
+
+    --blue:   #3f5fe0;
+    --teal:   #0d9488;
+    --orange: #d97706;
+    --purple: #8b5cf6;
+    --pink:   #db2777;
+    --green:  #16a34a;
+
+    --tag-text-mix: black;
+    --shadow: rgba(30, 40, 80, .12);
+    --glow-1: rgba(63, 95, 224, .10);
+    --glow-2: rgba(13, 148, 136, .07);
+
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+        --bg:        #f5f6fa;
+        --bg-raised: #ffffff;
+        --bg-hover:  #eef1f8;
+        --border:    #dde1ec;
+        --text:      #1a1d29;
+        --muted:     #5b6275;
+
+        --blue:   #3f5fe0;
+        --teal:   #0d9488;
+        --orange: #d97706;
+        --purple: #8b5cf6;
+        --pink:   #db2777;
+    --green:  #16a34a;
+
+        --tag-text-mix: black;
+        --shadow: rgba(30, 40, 80, .12);
+        --glow-1: rgba(63, 95, 224, .10);
+        --glow-2: rgba(13, 148, 136, .07);
+
+        color-scheme: light;
+    }
+}
+
+/* ---------- Base ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    margin: 0;
+    font-family: var(--font);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text);
+    background:
+        radial-gradient(1200px 600px at 80% -10%, var(--glow-1), transparent 60%),
+        radial-gradient(900px 500px at -10% 20%, var(--glow-2), transparent 60%),
+        var(--bg);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .3s, color .3s;
+}
+
+a { color: inherit; }
+
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+/* ---------- Shared layout ---------- */
+
+.section {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 64px 24px;
+    scroll-margin-top: 40px; /* keep the title clear of the sticky section bar */
+}
+
+@media (max-width: 1000px) {
+    .section { scroll-margin-top: 100px; }
+}
+
+.section-lead {
+    margin: -12px 0 24px;
+    color: var(--muted);
+}
+
+/* card grid used by projects and services */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    transition: border-color .2s, transform .2s, background .2s, box-shadow .2s;
+}
+
+.card:hover {
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+    background: var(--bg-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px var(--shadow);
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.card p {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: .95rem;
+}
+
+/* ---------- Reveal on scroll (v-reveal directive) ---------- */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .6s ease, transform .6s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* ---------- Accessibility & small screens ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, .reveal { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+}
+
+@media (max-width: 600px) {
+    body { font-size: 16px; }
+    .section { padding: 48px 18px; }
+}
+
+/* ---------- Print: a clean paper CV ---------- */
+
+@page {
+    size: A4;
+    margin: 14mm 12mm;
+}
+
+@media print {
+    /* always the light palette on paper / in the PDF */
+    :root, :root[data-theme] {
+        --bg: #fff; --bg-raised: #fff; --bg-hover: #f5f6fa;
+        --border: #d5d9e4; --text: #111; --muted: #555;
+        --blue: #2b4acb; --teal: #0f766e; --orange: #c2410c;
+        --purple: #7c3aed; --pink: #be185d; --green: #15803d;
+        --accent: var(--blue);
+        --tag-text-mix: black;
+        --shadow: transparent;
+        color-scheme: light;
+    }
+    /* keep coloured tags and icons instead of dropping backgrounds */
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; font-size: 10pt; line-height: 1.45; }
+    .section { padding: 10px 0 6px; max-width: none; }
+    .section-lead { margin: -6px 0 10px; break-after: avoid; }
+    .card { padding: 12px 14px; }
+    .card p { margin-top: 4px; font-size: .9rem; }
+    .cards { gap: 10px; }
+    .card { break-inside: avoid; }
+    .card:hover { transform: none; box-shadow: none; }
+    .reveal { opacity: 1; transform: none; }
+    .no-print { display: none !important; }
+}
