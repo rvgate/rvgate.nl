@@ -56,18 +56,15 @@ src/
 
 ## Deployment
 
-Deployment works the same way as `carambolecomputer-api`:
+Deployment is done manually from the [`rvgate/infrastructure`](https://github.com/rvgate/infrastructure)
+repository (Ansible), the same way as `carambolecomputer-api`:
 
-1. Push to the **`live`** branch (or run the *Deploy* workflow manually in GitHub Actions).
-2. `.github/workflows/deploy.yml` checks out [`rvgate/infrastructure`](https://github.com/rvgate/infrastructure)
-   and runs `ansible-playbook rvgate.yml -l fedora`.
+1. Push the changes to the **`live`** branch (`git push origin master:live`).
+2. In the infrastructure repository, run `make rvgate`.
 3. The `rvgate` role pulls the `live` branch onto the server, builds the `rvgate-nl` Docker
    image (`Dockerfile`: Node build → nginx) and runs `docker-compose.yaml`.
 4. The nginx-proxy ingress picks the container up via `VIRTUAL_HOST` and serves it on
    https://rvgate.nl and https://www.rvgate.nl using the existing Let's Encrypt certificate.
-
-The workflow needs the repository secrets `DEPLOY_SSH_KEY` and `ANSIBLE_VAULT_PASSWORD`
-(same values as in `carambolecomputer-api`).
 
 Local Docker test:
 
