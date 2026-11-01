@@ -674,8 +674,6 @@ export default {
     },
     items: [
       { icon: 'mail', label: 'info@rvgate.nl', url: 'mailto:info@rvgate.nl' },
-      { icon: 'phone', label: '+31 6 40 29 36 21', url: 'tel:+31640293621' },
-      { icon: 'location', label: { en: 'Almere, The Netherlands', nl: 'Almere, Nederland' } },
     ],
   },
 
