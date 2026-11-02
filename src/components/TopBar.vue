@@ -1,10 +1,12 @@
 <script setup>
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import ThemeToggle from './ThemeToggle.vue'
+import GameButton from './GameButton.vue'
 </script>
 
 <template>
   <div class="top-bar no-print">
+    <GameButton />
     <LanguageSwitcher />
     <ThemeToggle />
   </div>

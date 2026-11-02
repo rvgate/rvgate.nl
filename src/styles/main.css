@@ -219,3 +219,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
     .reveal { opacity: 1; transform: none; }
     .no-print { display: none !important; }
 }
+
+/* ---------- "Catch the website" game ---------- */
+
+/* the page fades out while the game turns it into dots, and back in afterwards */
+#app { transition: opacity .45s ease; }
+html.game-on #app { opacity: 0; pointer-events: none; }
+html.game-on { overscroll-behavior: none; }

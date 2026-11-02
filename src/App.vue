@@ -14,6 +14,8 @@ import ProjectsSection from './components/ProjectsSection.vue'
 import ServicesSection from './components/ServicesSection.vue'
 import ContactSection from './components/ContactSection.vue'
 import FavoritesSection from './components/FavoritesSection.vue'
+import WebsiteGame from './components/WebsiteGame.vue'
+import { useGame } from './composables/useGame.js'
 
 // all content, already translated to the current language
 const { cv, lang, locale } = useLanguage()
@@ -37,6 +39,8 @@ const sections = computed(() =>
     .filter((s) => !s.hidden && registry[s.id])
     .map((s, i) => ({ ...s, number: i + 1, ...registry[s.id], props: registry[s.id].props(cv.value) })),
 )
+
+const { playing } = useGame()
 
 const footer = computed(() => cv.value.footer?.replace('{year}', new Date().getFullYear()))
 </script>
@@ -62,6 +66,8 @@ const footer = computed(() => cv.value.footer?.replace('{year}', new Date().getF
   </main>
 
   <footer v-if="footer" class="copyright">{{ footer }}</footer>
+
+  <WebsiteGame v-if="playing" />
 </template>
 
 <style scoped>
