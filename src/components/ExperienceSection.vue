@@ -1,6 +1,7 @@
 <script setup>
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import TimelineColumn from './TimelineColumn.vue'
+import BaseIcon from './BaseIcon.vue'
 import { useSkillFilter } from '../composables/useSkillFilter.js'
 import { useLanguage } from '../composables/useLanguage.js'
 import { confetti } from '../utils/confetti.js'
@@ -13,9 +14,18 @@ const props = defineProps({
   effects: { type: Object, default: () => ({}) }, // { confetti, sound }
 })
 
-const { label, active, clear } = useSkillFilter()
+const { label, active, clear, matchesTags } = useSkillFilter()
 const { t } = useLanguage()
 const chip = ref(null)
+
+// entries marked `older` stay hidden until the visitor asks for them
+const showOlder = ref(false)
+const olderItems = computed(() => props.timelines.flatMap((tl) => tl.items.filter((item) => item.older)))
+
+// a highlighted skill used in an older entry should not stay hidden
+watch(label, (current) => {
+  if (current && olderItems.value.some((item) => matchesTags(item.tags))) showOlder.value = true
+})
 
 // celebrate every time a skill or category gets selected
 watch(label, async (current) => {
@@ -43,7 +53,16 @@ watch(label, async (current) => {
       :timeline="timeline"
       :locale="locale"
       :labels="labels"
+      :show-older="showOlder"
     />
+  </div>
+
+  <div v-if="olderItems.length" class="older-toggle no-print">
+    <button type="button" :aria-expanded="showOlder" @click="showOlder = !showOlder">
+      <BaseIcon name="history" />
+      {{ showOlder ? t('hideOlder') : t('showOlder') }}
+      <span class="arrow" :class="{ up: showOlder }">↓</span>
+    </button>
   </div>
 </template>
 
@@ -88,6 +107,39 @@ watch(label, async (current) => {
 
 .chip-enter-active, .chip-leave-active { transition: opacity .2s, transform .2s; }
 .chip-enter-from, .chip-leave-to { opacity: 0; transform: translate(-50%, 8px); }
+
+/* "Go further into the past" button below the timelines */
+.older-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.older-toggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 60%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-raised) 85%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+
+.older-toggle button:hover {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+}
+
+.older-toggle .icon { color: var(--accent); }
+.older-toggle .arrow { transition: transform .3s; }
+.older-toggle .arrow.up { transform: rotate(180deg); }
 
 /* The columns break out a little wider than the other sections,
    while the section title stays aligned with the rest of the page. */

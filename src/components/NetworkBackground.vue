@@ -7,6 +7,7 @@
  */
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useTheme } from '../composables/useTheme.js'
+import { onMessageNode } from '../composables/useNetwork.js'
 
 const props = defineProps({
   linkDistance: { type: Number, default: 150 },     // px: max length of a link
@@ -29,6 +30,8 @@ let running = false
 let lastTime = 0
 let rafId = 0
 let resizeTimer = 0
+let offMessage = null
+const MAX_MESSAGES = 6 // sent contact-form messages that stay in the network
 const mouse = { x: -9999, y: -9999 }
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
@@ -73,9 +76,8 @@ function resize() {
   if (!running) draw()
 }
 
-function spawnPacket() {
-  const a = nodes[(Math.random() * nodes.length) | 0]
-  const max = props.linkDistance ** 2 * 0.6
+function spawnPacket(a = nodes[(Math.random() * nodes.length) | 0]) {
+  const max = props.linkDistance ** 2 * (a.message ? 1.6 : 0.6)
   const candidates = nodes.filter((b) => b !== a && (a.x - b.x) ** 2 + (a.y - b.y) ** 2 < max)
   if (!candidates.length) return
   packets.push({
@@ -84,6 +86,24 @@ function spawnPacket() {
     t: 0,
     speed: 0.008 + Math.random() * 0.012,
   })
+}
+
+/** A sent message joins the network: a pulsing node that links up with its neighbours. */
+function addMessage(x, y) {
+  const angle = Math.random() * Math.PI * 2
+  nodes.unshift({
+    x, y,
+    vx: Math.cos(angle) * 0.05,
+    vy: Math.sin(angle) * 0.05,
+    r: 2.6,
+    hub: true,
+    message: true,
+    born: performance.now(),
+  })
+  // only keep the newest few message nodes
+  let seen = 0
+  nodes = nodes.filter((n) => !n.message || ++seen <= MAX_MESSAGES)
+  if (!running) draw()
 }
 
 function update(step) {
@@ -97,11 +117,18 @@ function update(step) {
 
   if (packets.length < props.maxPackets && Math.random() < 0.06 * step) spawnPacket()
 
+  // a freshly arrived message sends a burst of packets to its new neighbours
+  const now = performance.now()
+  for (const n of nodes) {
+    if (n.message && now - n.born > 500 && now - n.born < 4000 && Math.random() < 0.12 * step) spawnPacket(n)
+  }
+
   const max = props.linkDistance ** 2
   packets = packets.filter((pk) => {
     pk.t += pk.speed * step
     // drop packets that arrived or whose link broke
-    return pk.t < 1 && (pk.from.x - pk.to.x) ** 2 + (pk.from.y - pk.to.y) ** 2 <= max
+    const reach = pk.from.message || pk.to.message ? max * 1.7 : max
+    return pk.t < 1 && (pk.from.x - pk.to.x) ** 2 + (pk.from.y - pk.to.y) ** 2 <= reach
   })
 }
 
@@ -117,6 +144,7 @@ function draw() {
     const a = nodes[i]
     for (let j = i + 1; j < nodes.length; j++) {
       const b = nodes[j]
+      if (a.message || b.message) continue // drawn by drawMessages()
       const d2 = (a.x - b.x) ** 2 + (a.y - b.y) ** 2
       if (d2 > L * L) continue
       ctx.globalAlpha = (1 - Math.sqrt(d2) / L) * 0.35 * colors.alpha
@@ -139,6 +167,7 @@ function draw() {
   // nodes
   ctx.fillStyle = colors.node
   for (const n of nodes) {
+    if (n.message) continue
     ctx.globalAlpha = (n.hub ? 1 : 0.7) * colors.alpha * 1.4
     ctx.beginPath()
     ctx.arc(n.x, n.y, n.hub ? n.r + 1.2 : n.r, 0, Math.PI * 2)
@@ -167,7 +196,65 @@ function draw() {
     }
   }
 
+  drawMessages()
   ctx.globalAlpha = 1
+}
+
+/** Message nodes: links that grow towards the neighbours, a pulse and a glow. */
+function drawMessages() {
+  const now = performance.now()
+  const reach = props.linkDistance * 1.3
+  ctx.strokeStyle = colors.packet
+  ctx.fillStyle = colors.packet
+
+  for (const m of nodes) {
+    if (!m.message) continue
+    const age = now - m.born
+
+    // links, nearest neighbours connect first
+    ctx.lineWidth = 1.2
+    for (const b of nodes) {
+      if (b === m) continue
+      const d = Math.hypot(b.x - m.x, b.y - m.y)
+      if (d > reach) continue
+      const grow = Math.min(1, Math.max(0, (age - 150 - d * 3) / 450))
+      if (!grow) continue
+      ctx.globalAlpha = (1 - d / reach) * colors.alpha * 1.1
+      ctx.beginPath()
+      ctx.moveTo(m.x, m.y)
+      ctx.lineTo(m.x + (b.x - m.x) * grow, m.y + (b.y - m.y) * grow)
+      ctx.stroke()
+    }
+
+    // shock wave on arrival
+    if (age < 1200) {
+      const p = age / 1200
+      ctx.lineWidth = 2
+      ctx.globalAlpha = (1 - p) * colors.alpha * 2
+      ctx.beginPath()
+      ctx.arc(m.x, m.y, 4 + p * 80, 0, Math.PI * 2)
+      ctx.stroke()
+    }
+
+    // steady heartbeat pulse
+    const phase = (age % 2400) / 2400
+    ctx.lineWidth = 1.2
+    ctx.globalAlpha = (1 - phase) * colors.alpha * 1.6
+    ctx.beginPath()
+    ctx.arc(m.x, m.y, m.r + 3 + phase * 22, 0, Math.PI * 2)
+    ctx.stroke()
+
+    // glowing core
+    ctx.globalAlpha = colors.alpha * 0.35
+    ctx.beginPath()
+    ctx.arc(m.x, m.y, m.r + 4 + Math.sin(age / 380) * 1.2, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.globalAlpha = Math.min(1, colors.alpha * 2.2)
+    ctx.beginPath()
+    ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.lineWidth = 1
 }
 
 function frame(now) {
@@ -231,6 +318,7 @@ onMounted(() => {
   readColors()
   resize()
   start()
+  offMessage = onMessageNode(addMessage)
 
   window.addEventListener('resize', onResize)
   window.addEventListener('pointermove', onPointerMove, { passive: true })
@@ -242,6 +330,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   stop()
   clearTimeout(resizeTimer)
+  offMessage?.()
   window.removeEventListener('resize', onResize)
   window.removeEventListener('pointermove', onPointerMove)
   document.removeEventListener('pointerleave', onPointerLeave)

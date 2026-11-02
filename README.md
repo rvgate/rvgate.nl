@@ -54,6 +54,21 @@ src/
 └── utils/dates.js             ← month formatting and durations
 ```
 
+## Contact form
+
+The form in the contact section posts to `/api/contact`, served by a tiny
+Python service in `api/` (standard library only). nginx in the `web`
+container proxies `/api/` to it, and it e-mails the message over SMTP with
+the visitor's address as `Reply-To`. Bots are filtered with a honeypot field,
+a minimum fill-in time and a rate limit of 5 messages per IP per hour.
+
+- Development: run `make run/api` next to `make run/devserver`. It prints the
+  e-mails instead of sending them; Vite proxies `/api` to it.
+- Production: the `contact` service reads its SMTP settings from `.env`
+  (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM`,
+  `MAIL_TO`), which the infrastructure role writes from the vault.
+- Remove `contact.form` from `src/content.js` to hide the form.
+
 ## Deployment
 
 Deployment is done manually from the [`rvgate/infrastructure`](https://github.com/rvgate/infrastructure)
@@ -61,8 +76,9 @@ repository (Ansible), the same way as `carambolecomputer-api`:
 
 1. Push the changes to the **`live`** branch (`git push origin master:live`).
 2. In the infrastructure repository, run `make rvgate`.
-3. The `rvgate` role pulls the `live` branch onto the server, builds the `rvgate-nl` Docker
-   image (`Dockerfile`: Node build → nginx) and runs `docker-compose.yaml`.
+3. The `rvgate` role pulls the `live` branch onto the server, writes `.env` with the SMTP
+   settings and runs `docker-compose.yaml`, which builds the site (`Dockerfile`: Node
+   build → nginx) and the contact form backend (`api/Dockerfile`).
 4. The nginx-proxy ingress picks the container up via `VIRTUAL_HOST` and serves it on
    https://rvgate.nl and https://www.rvgate.nl using the existing Let's Encrypt certificate.
 
@@ -70,5 +86,7 @@ Local Docker test:
 
 ```sh
 make docker/build
-make docker/run   # http://localhost:8080
+make docker/run   # http://localhost:8080 (site only)
+make docker/up    # site + contact backend; needs a .env (DRY_RUN=1 is enough)
+                  # and the `proxy` network (docker network create proxy)
 ```

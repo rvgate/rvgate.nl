@@ -6,6 +6,7 @@ defineProps({
   timeline: { type: Object, required: true }, // { title, icon, accent, items }
   locale: { type: String, default: 'en-GB' },
   labels: { type: Object, required: true },
+  showOlder: { type: Boolean, default: false }, // reveal entries marked `older`
 })
 </script>
 
@@ -22,6 +23,7 @@ defineProps({
         :item="item"
         :locale="locale"
         :labels="labels"
+        :class="{ 'older-hidden': item.older && !showOlder }"
       />
     </ol>
   </div>
@@ -59,7 +61,11 @@ defineProps({
   background: linear-gradient(var(--accent), var(--border) 85%, transparent);
 }
 
+/* hidden on screen until "Go further into the past"; always printed */
+.older-hidden { display: none; }
+
 @media print {
+  .older-hidden { display: block; }
   .timeline-title { margin-bottom: 10px; padding-bottom: 6px; font-size: 1rem; break-after: avoid; }
   .timeline { padding-left: 29px; }
   .timeline::before { left: 5px; }

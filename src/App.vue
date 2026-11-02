@@ -49,7 +49,13 @@ const footer = computed(() => cv.value.footer?.replace('{year}', new Date().getF
   <SectionNav :items="sections" />
 
   <main>
-    <section v-for="section in sections" :id="section.id" :key="section.id" class="section">
+    <section
+      v-for="section in sections"
+      :id="section.id"
+      :key="section.id"
+      class="section"
+      :class="{ 'no-print': section.print === false }"
+    >
       <SectionTitle :number="section.number" :title="section.title" />
       <component :is="section.component" v-bind="section.props" />
     </section>

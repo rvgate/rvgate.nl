@@ -71,6 +71,8 @@ export default {
     },
     show: { en: 'Show ↓', nl: 'Bekijk ↓' },
     clear: { en: 'Clear', nl: 'Wissen' },
+    showOlder: { en: 'Go further into the past', nl: 'Verder terug in de tijd' },
+    hideOlder: { en: 'Back to the present', nl: 'Terug naar het heden' },
     highlighting: { en: 'Highlighting', nl: 'Gemarkeerd:' },
     clearHighlight: { en: 'Clear skill highlight', nl: 'Markering wissen' },
     highlightSkill: { en: 'Highlight where I used {skill}', nl: 'Toon waar ik {skill} heb gebruikt' },
@@ -103,6 +105,7 @@ export default {
   //  `hidden: true`) to hide a section. Numbers are automatic.
   //  `primary: true` makes that section's button in the top
   //  navigation stand out as the main call to action.
+  //  `print: false` leaves a section out of print and the PDF.
   // ------------------------------------------------------------
   sections: [
     { id: 'skills', title: 'Skills' },
@@ -110,7 +113,7 @@ export default {
     { id: 'projects', title: { en: 'Projects', nl: 'Projecten' } },
     { id: 'about-me', title: { en: 'About me', nl: 'Over mij' } },
     { id: 'services', title: { en: 'Services', nl: 'Diensten' } },
-    { id: 'contact', title: 'Contact', primary: true },
+    { id: 'contact', title: 'Contact', primary: true, print: false },
   ],
 
   // ------------------------------------------------------------
@@ -201,6 +204,8 @@ export default {
   //    links: buttons at the bottom of the card, e.g.
   //           [{ label: 'Case study', url: 'https://…', icon: 'link' }]
   //           (icon is optional; defaults to 'link')
+  //    older: true hides the entry behind the "Go further into the
+  //           past" button (it is always shown in print / the PDF)
   // ------------------------------------------------------------
   timelines: [
     {
@@ -334,6 +339,7 @@ export default {
         {
           title: { en: 'Intern, Innovation Team Cloud', nl: 'Stagiair, Innovatieteam Cloud' },
           company: 'LeaseWeb',
+          older: true,
           url: 'https://www.leaseweb.com/',
           location: 'Haarlem',
           from: '2013-01',
@@ -356,6 +362,7 @@ export default {
         {
           title: { en: 'PHP Programmer', nl: 'PHP-programmeur' },
           company: 'Exed Internet',
+          older: true,
           url: 'https://www.exed.nl/',
           location: 'Lelystad',
           from: '2011-06',
@@ -370,6 +377,7 @@ export default {
         {
           title: { en: 'ICT Administrator & Programmer', nl: 'ICT-beheerder & programmeur' },
           company: 'Overhoff Dataservices, Bevede Automatiseringsdiensten',
+          older: true,
           location: { en: 'MBO internships', nl: 'Mbo-stages' },
           from: '2005',
           to: '2009',
@@ -478,6 +486,7 @@ export default {
         {
           title: { en: 'Web developer, front-end & back-end', nl: 'Webdeveloper, front-end & back-end' },
           company: 'Rvgate Web development',
+          older: true,
           location: { en: 'Self-employed, part-time', nl: 'Zelfstandig, parttime' },
           from: '2004-11',
           to: '2011-02',
@@ -510,6 +519,19 @@ export default {
       },
       tags: ['Ansible', 'Docker', 'Linux', 'Nginx', 'CI/CD', 'Git'],
       link: { label: { en: 'View on GitHub', nl: 'Bekijk op GitHub' }, url: 'https://github.com/rvgate/infrastructure' },
+    },
+    {
+      name: 'Carambole Computer',
+      year: { en: '2022 – now', nl: '2022 – nu' },
+      description: {
+        en: 'Scoreboard platform for carom billiards clubs. What started as a hobby project and an experiment ' +
+          'grew into a full commercial product, built with everything I have learned over the years.',
+        nl: 'Scorebordplatform voor biljartverenigingen. Wat begon als hobbyproject en experiment ' +
+          'groeide uit tot een volwaardig commercieel product, gebouwd met alles wat ik door de jaren heen heb geleerd.',
+      },
+      tags: ['Vue.js', 'TypeScript', 'Python', 'FastAPI', 'PostgreSQL', 'Firebase', 'Capacitor', 'Android',
+        'Docker', 'Ansible', 'CI/CD', 'Claude', 'IntelliJ IDEA Ultimate', 'Git', 'GitHub'],
+      link: { label: 'carambolecomputer.nl', url: 'https://carambolecomputer.nl/', icon: 'globe' },
     },
     {
       name: { en: 'Patterns', nl: 'Patronen' },
@@ -672,9 +694,86 @@ export default {
       en: 'Want to work together or just say hi? Get in touch.',
       nl: 'Samenwerken of gewoon even hallo zeggen? Neem contact op.',
     },
-    items: [
-      { icon: 'mail', label: 'info@rvgate.nl', url: 'mailto:info@rvgate.nl' },
-    ],
+    // contact details shown as tiles, e.g.
+    // { icon: 'mail', label: 'info@example.com', url: 'mailto:info@example.com' }
+    items: [],
+    // contact form, sent through the backend in api/ (remove to hide it)
+    form: {
+      title: { en: 'Send a message', nl: 'Stuur een bericht' },
+      name: { en: 'Name', nl: 'Naam' },
+      email: { en: 'E-mail', nl: 'E-mail' },
+      phone: { en: 'Phone', nl: 'Telefoon' },
+      optional: { en: 'optional', nl: 'optioneel' },
+      reason: { en: 'Reason for contact', nl: 'Reden van contact' },
+      // `value` is what ends up in the e-mail subject
+      reasons: [
+        { value: 'Job opportunity', label: { en: 'Job opportunity', nl: 'Vacature / baan' } },
+        { value: 'Freelance assignment', label: { en: 'Freelance assignment', nl: 'Freelanceopdracht' } },
+        { value: 'Project or quote request', label: { en: 'Project or quote request', nl: 'Project of offerteaanvraag' } },
+        { value: 'DevOps & automation', label: { en: 'DevOps & automation', nl: 'DevOps & automatisering' } },
+        { value: 'Software development', label: { en: 'Software development', nl: 'Softwareontwikkeling' } },
+        { value: 'Servers & hosting', label: { en: 'Servers & hosting', nl: 'Servers & hosting' } },
+        { value: 'Monitoring & support', label: { en: 'Monitoring & support', nl: 'Monitoring & ondersteuning' } },
+        { value: 'Consultancy & advice', label: { en: 'Consultancy & advice', nl: 'Consultancy & advies' } },
+        { value: 'Carambole Computer', label: 'Carambole Computer' },
+        { value: 'Collaboration', label: { en: 'Collaboration', nl: 'Samenwerking' } },
+        { value: 'Just saying hi', label: { en: 'Just saying hi', nl: 'Gewoon even hallo zeggen' } },
+        { value: 'Something else', label: { en: 'Something else', nl: 'Iets anders' } },
+      ],
+      source: { en: 'How did you hear about me?', nl: 'Hoe heb je mij gevonden?' },
+      choose: { en: 'Choose…', nl: 'Kies…' },
+      // `value` is what ends up in the e-mail; `other: true` asks the visitor to type it
+      sources: [
+        { value: 'Google / search engine', label: { en: 'Google / search engine', nl: 'Google / zoekmachine' } },
+        { value: 'LinkedIn', label: 'LinkedIn' },
+        { value: 'GitHub', label: 'GitHub' },
+        { value: 'Recommendation', label: { en: 'Recommendation from someone', nl: 'Aanbevolen door iemand' } },
+        { value: 'Former colleague', label: { en: 'Former colleague', nl: 'Oud-collega' } },
+        { value: 'Friend', label: { en: 'I\'m a friend', nl: 'Ik ben een vriend' } },
+        { value: 'Recruiter', label: 'Recruiter' },
+        { value: 'Carambole Computer', label: 'Carambole Computer' },
+        { value: 'Other', label: { en: 'Different, namely…', nl: 'Anders, namelijk…' }, other: true },
+      ],
+      sourceOther: { en: 'Where did you hear about me?', nl: 'Waar heb je over mij gehoord?' },
+      message: { en: 'Message', nl: 'Bericht' },
+      send: { en: 'Send message', nl: 'Verstuur bericht' },
+      sending: { en: 'Sending…', nl: 'Versturen…' },
+      sent: {
+        en: 'Thanks for your message! I will get back to you as soon as possible.',
+        nl: 'Bedankt voor je bericht! Ik neem zo snel mogelijk contact met je op.',
+      },
+      again: { en: 'Send another message', nl: 'Nog een bericht sturen' },
+      // shown under the field (first group) or above the send button (last group)
+      errors: {
+        nameRequired: { en: 'Please enter your name.', nl: 'Vul je naam in.' },
+        emailRequired: { en: 'Please enter your e-mail address.', nl: 'Vul je e-mailadres in.' },
+        email: {
+          en: 'That doesn\'t look like a valid e-mail address.',
+          nl: 'Dat lijkt geen geldig e-mailadres.',
+        },
+        phone: {
+          en: 'Use only digits, spaces and + ( ) - . (at least 6 characters).',
+          nl: 'Gebruik alleen cijfers, spaties en + ( ) - . (minimaal 6 tekens).',
+        },
+        sourceOtherRequired: {
+          en: 'Please tell me where you heard about me.',
+          nl: 'Laat me weten waar je over mij hebt gehoord.',
+        },
+        messageRequired: { en: 'Please write a message.', nl: 'Schrijf een bericht.' },
+        check: {
+          en: 'Please check the highlighted fields.',
+          nl: 'Controleer de gemarkeerde velden.',
+        },
+        rate_limited: {
+          en: 'You have sent several messages already. Please try again later.',
+          nl: 'Je hebt al een paar berichten gestuurd. Probeer het later nog eens.',
+        },
+        failed: {
+          en: 'Sorry, your message could not be sent. Please try again in a moment.',
+          nl: 'Sorry, je bericht kon niet worden verstuurd. Probeer het zo nog eens.',
+        },
+      },
+    },
   },
 
   // ------------------------------------------------------------

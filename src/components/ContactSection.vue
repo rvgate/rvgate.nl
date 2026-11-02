@@ -1,8 +1,9 @@
 <script setup>
 import BaseIcon from './BaseIcon.vue'
+import ContactForm from './ContactForm.vue'
 
 defineProps({
-  contact: { type: Object, required: true }, // { intro, items: [{ icon, label, url }] }
+  contact: { type: Object, required: true }, // { intro, items: [{ icon, label, url }], form }
 })
 
 const isExternal = (url) => /^https?:/.test(url)
@@ -11,7 +12,7 @@ const isExternal = (url) => /^https?:/.test(url)
 <template>
   <div>
     <p v-if="contact.intro" v-reveal class="section-lead">{{ contact.intro }}</p>
-    <ul v-reveal class="contact-list">
+    <ul v-if="contact.items?.length" v-reveal class="contact-list">
       <li v-for="(item, i) in contact.items" :key="i">
         <component
           :is="item.url ? 'a' : 'div'"
@@ -24,6 +25,7 @@ const isExternal = (url) => /^https?:/.test(url)
         </component>
       </li>
     </ul>
+    <ContactForm v-if="contact.form" :form="contact.form" />
   </div>
 </template>
 

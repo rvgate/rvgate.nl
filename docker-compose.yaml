@@ -1,6 +1,7 @@
 services:
   web:
     image: rvgate-nl:latest
+    build: .
     restart: always
     environment:
       - VIRTUAL_HOST=rvgate.nl,www.rvgate.nl
@@ -9,6 +10,18 @@ services:
       - monitoring=true
     networks:
       - proxy
+      - default
+
+  # contact form backend, only reachable through nginx in `web` (/api/)
+  contact:
+    image: rvgate-nl-contact:latest
+    build: ./api
+    restart: always
+    env_file: .env   # SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, MAIL_FROM, MAIL_TO
+    labels:
+      - monitoring=true
+    networks:
+      - default
 
 networks:
   proxy:

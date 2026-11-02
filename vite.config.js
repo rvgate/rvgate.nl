@@ -36,4 +36,7 @@ function resumePdfInDev() {
 
 export default defineConfig({
   plugins: [vue(), resumePdfInDev()],
+  // contact form backend: `make run/api` (prints mails instead of sending)
+  server: { proxy: { '/api': 'http://localhost:8000' } },
+  preview: { proxy: { '/api': 'http://localhost:8000' } },
 })
